@@ -1,0 +1,110 @@
+"use strict";
+
+// route for all interactions with users
+
+import express from "express";
+import { LoadFromDB, SaveToDB, updateDB } from "../mongoConnect.js";
+import HashString from "../mongoConnect.js";
+import nodemailer from "nodemailer";
+import { response } from "express";
+import { ObjectId } from "mongodb";
+export const usersRouter = express.Router();
+
+/*
+function to test if username and/or password exist if test is returned as false, the  username or password exist and the registration will be rejected
+*/
+async function testUserEmail(obj) {
+  const test = await LoadFromDB("users", obj)
+    .then((response) => {
+      return response.length === 0 ? false : true;
+    })
+    .catch((error) => console.log(error));
+  return test;
+}
+
+/*
+retrieves the user id of the new user and uses it to create a log document in the logs collection consisting of the new user's id and the number of his requests
+*/
+async function startNewUserLog(username) {
+  LoadFromDB("users", { username: username }).then((response) => {
+    const user = { ...response["0"] };
+    SaveToDB("log", {
+      userId: user._id,
+      requests: 1,
+    });
+  });
+}
+
+// post from email form to email account (mailtrap.io)
+usersRouter.route("/email").post(async (req, res) => {
+  let fields = req.body.fields;
+
+  //create transport for nodemailer
+  const transport = nodemailer.createTransport({
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+  });
+
+  // run transport
+  await transport
+    .sendMail({
+      from: fields.email,
+      to: "joe@test.com",
+      subject: fields.subject,
+      html: `<div className="">
+      <h2>Here is your email!</h2>
+      <p>${fields.body}</p>
+      </div>`,
+    })
+    // !!todo add code to send back to react a message that email was sent successfully
+    .then(console.log("email successfully submitted!"))
+    .catch((error) => console.log(error));
+});
+
+//post to register user
+usersRouter.route("/register").post(async (req, res) => {
+  const _username = req.body.username;
+  const _email = req.body.email;
+  const _password = HashString(req.body.password);
+  let user;
+  // check to see whether username and/or email are already in db
+  const testUser = await testUserEmail({ username: _username });
+  const testEmail = await testUserEmail({ email: _email });
+  if (!testUser && !testEmail) {
+    // if not, register new user
+    await SaveToDB("users", {
+      username: _username,
+      email: _email,
+      password: _password,
+    });
+    res.send(true);
+    // then start a new document for the user in the log collection
+    await startNewUserLog(_username);
+  } else {
+    res.send(false);
+  }
+});
+
+//post to signin user
+usersRouter.route("/signin").post((req, res) => {
+  const username = req.body.username;
+  const password = HashString(req.body.password);
+  LoadFromDB("users", { username: username })
+    .then((response) => {
+      const user = { ...response["0"] };
+      if (password === user.password) {
+        res.send({
+          id: user._id,
+          username: user.username,
+          email: user.email,
+        });
+      } else {
+        res.send("Invalid Login!");
+      }
+    })
+    .catch((error) => console.log(error));
+});
