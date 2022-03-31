@@ -70,9 +70,9 @@ export async function LoadFromDB(col, item) {
     return await db.collection(col).find(item).toArray();
   } catch (error) {
     console.log(error);
-  } finally {
-    await CloseMDB();
+    // } finally {
   }
+  await CloseMDB();
 }
 
 // function to update document in collection

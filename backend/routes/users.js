@@ -175,11 +175,4 @@ usersRouter.route("/sessionSignin").post((req, res) => {
   } else {
     res.send(false);
   }
-  // res.send({
-  //   id: user._id,
-  //   username: user.username,
-  //   email: user.email,
-  // });
 });
-
-// send user data to app
