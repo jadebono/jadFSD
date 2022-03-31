@@ -10,6 +10,7 @@ import Register from "./components/Register";
 import Dfield from "./components/Dfield";
 import Shop from "./components/Shop";
 import Cart from "./components/Cart";
+import { session } from "./validate";
 
 export default function App() {
   const [display, setDisplay] = useState("home");
@@ -22,12 +23,31 @@ export default function App() {
   });
 
   useEffect(() => {
+    async function getSession() {
+      if (user.id === "" && session()) {
+        let sessUser = await session();
+        console.log("sessuser is: ", sessUser);
+        setUser((prevUser) => {
+          return {
+            id: sessUser.id,
+            username: sessUser.username,
+            email: sessUser.email,
+          };
+        });
+      }
+    }
+    getSession();
+    getUserCart();
+  }, [user.id]);
+
+  useEffect(() => {
     if (cart.length) {
       let newCartItems = cart
         .map((item) => parseInt(item.qty))
         .reduce((accum, counter) => accum + counter);
       setCartQty((prevCartItems) => newCartItems);
     } else {
+      session();
       setCartQty(0);
     }
   }, [cart]);
@@ -40,10 +60,8 @@ export default function App() {
     getUserCart();
   }, [user.id]);
 
-
   // function to post user's cart to user's collection
   async function postUserCart() {
-    console.log(cart);
     await axios
       .post("http://localhost:4000/items/postUserCart", {
         cart,
@@ -62,7 +80,7 @@ export default function App() {
         params: { user: user.id },
       })
       .then((response) => {
-        setCart(response.data);
+        response.data ? setCart(response.data) : setCart([]);
       })
       .catch((err) => console.log(err));
   }

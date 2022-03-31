@@ -42,7 +42,7 @@ itemsRouter.route("/cartItems").get((req, res) => {
   // req.query.cart contains cart so parse it into json and retrieve id
   let cart = req.query.cart.map((item) => JSON.parse(item).id);
   // turn each id into a new ObjectId
-  let ids = cart.map((id) => new ObjectId(id));
+  let ids = cart.map((id) => ObjectId(id));
   // params in ob request search for all items that $in(clude) each id in ids
   LoadFromDB("items", { _id: { $in: ids } })
     .then((response) => res.send(JSON.stringify(response)))
@@ -51,12 +51,14 @@ itemsRouter.route("/cartItems").get((req, res) => {
 
 // route to retrieve user's cart from user's collection
 itemsRouter.route("/getUserCart").get((req, res) => {
-  const user = new ObjectId(req.query.user);
-  LoadFromDB("users", { _id: { $eq: user } })
-    .then((response) => {
-      res.send(response[0].cart);
-    })
-    .catch((error) => console.log(error));
+  const user = req.query.user;
+  user
+    ? LoadFromDB("users", { _id: { $eq: ObjectId(user) } })
+        .then((response) => {
+          res.send(response[0].cart);
+        })
+        .catch((error) => console.log(error))
+    : res.send(false);
 });
 
 // route to post/update user's cart to user's collection

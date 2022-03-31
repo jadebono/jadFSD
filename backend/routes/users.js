@@ -45,7 +45,7 @@ function signSessionToken(id) {
       data: id,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "4h" }
   );
 }
 
@@ -54,6 +54,17 @@ function validateSessionToken(token) {
   try {
     jwt.verify(token, process.env.SECRET_KEY);
     return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// function to decrypt the user id from the session token
+function decryptSessionToken(token) {
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET_KEY);
+    console.log(`decoded.data = ${decoded.data}`);
+    return decoded.data;
   } catch (error) {
     return false;
   }
@@ -136,7 +147,39 @@ usersRouter.route("/signin").post((req, res) => {
     .catch((error) => console.log(error));
 });
 
+// route to validate session
 usersRouter.route("/validatesession").post((req, res) => {
   let token = req.body.cookie;
   res.send(validateSessionToken(token));
 });
+
+// route to sign in a user if session is still active
+usersRouter.route("/sessionSignin").post((req, res) => {
+  let token = req.body.cookie;
+  console.log(`the token I have received from index is: ${token}`);
+  let user = decryptSessionToken(token);
+  console.log(`user from Index is: ${user}`);
+  // fetch user data
+  if (user) {
+    LoadFromDB("users", { _id: { $eq: new ObjectId(user) } })
+      .then((response) => {
+        const loggedUser = response.pop();
+        res.send({
+          id: loggedUser._id,
+          username: loggedUser.username,
+          email: loggedUser.email,
+          cart: loggedUser.cart,
+        });
+      })
+      .catch((err) => console.log(err));
+  } else {
+    res.send(false);
+  }
+  // res.send({
+  //   id: user._id,
+  //   username: user.username,
+  //   email: user.email,
+  // });
+});
+
+// send user data to app

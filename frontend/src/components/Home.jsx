@@ -16,7 +16,9 @@ export default function Home(props) {
   async function getOffers() {
     await axios
       .get("http://localhost:4000/items/offer")
-      .then((response) => setOffers(Array.from(response.data)))
+      .then((response) => {
+        setOffers(Array.from(response.data));
+      })
       .catch((err) => console.log(err));
   }
 
