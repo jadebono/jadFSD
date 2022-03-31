@@ -51,8 +51,8 @@ itemsRouter.route("/cartItems").get((req, res) => {
 
 // route to retrieve user's cart from user's collection
 itemsRouter.route("/getUserCart").get((req, res) => {
-  const user = req.query.user;
-  LoadFromDB("users", { _id: { $eq: ObjectId(user) } })
+  const user = new ObjectId(req.query.user);
+  LoadFromDB("users", { _id: { $eq: user } })
     .then((response) => {
       res.send(response[0].cart);
     })

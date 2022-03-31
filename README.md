@@ -79,9 +79,11 @@ Port: 4000
 ### `Dependencies`
 
 1. "axios": "^0.26.0",
+1. "cookie-parser": "^1.4.6",
 1. "cors": "^2.8.5",
 1. "dotenv": "^16.0.0",
 1. "express": "^4.17.3",
+1. "jsonwebtoken": "^8.5.1",
 1. "mongodb": "^4.4.0",
 1. "nodemailer": "^6.7.2",
 1. "nodemon": "^2.0.15",

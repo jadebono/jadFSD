@@ -40,6 +40,7 @@ export default function App() {
     getUserCart();
   }, [user.id]);
 
+
   // function to post user's cart to user's collection
   async function postUserCart() {
     console.log(cart);
@@ -71,7 +72,12 @@ export default function App() {
   }
 
   function setUserState(user) {
-    setUser((prevUser) => user);
+    //save cookie manually
+    document.cookie = `session=${user.token} `;
+    // set user data
+    setUser((prevUser) => {
+      return { id: user.id, username: user.username, email: user.email };
+    });
   }
 
   function deleteItem(item) {

@@ -3,11 +3,13 @@
 // route for all interactions with users
 
 import express from "express";
-import { LoadFromDB, SaveToDB, updateDB } from "../mongoConnect.js";
 import HashString from "../mongoConnect.js";
+import { LoadFromDB, SaveToDB, updateDB } from "../mongoConnect.js";
+import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { response } from "express";
 import { ObjectId } from "mongodb";
+// import { req } from "express/lib/request";
 export const usersRouter = express.Router();
 
 /*
@@ -33,6 +35,28 @@ async function startNewUserLog(username) {
       requests: 1,
     });
   });
+}
+
+// function to create the session token
+function signSessionToken(id) {
+  console.log(`user.id is ${id}`);
+  return jwt.sign(
+    {
+      data: id,
+    },
+    process.env.SECRET_KEY,
+    { expiresIn: "1h" }
+  );
+}
+
+// function to verify session token
+function validateSessionToken(token) {
+  try {
+    jwt.verify(token, process.env.SECRET_KEY);
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 // post from email form to email account (mailtrap.io)
@@ -97,14 +121,22 @@ usersRouter.route("/signin").post((req, res) => {
     .then((response) => {
       const user = { ...response["0"] };
       if (password === user.password) {
+        //create token
+        const token = signSessionToken(user._id);
         res.send({
           id: user._id,
           username: user.username,
           email: user.email,
+          token: token,
         });
       } else {
         res.send("Invalid Login!");
       }
     })
     .catch((error) => console.log(error));
+});
+
+usersRouter.route("/validatesession").post((req, res) => {
+  let token = req.body.cookie;
+  res.send(validateSessionToken(token));
 });
