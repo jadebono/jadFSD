@@ -1,34 +1,16 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
 import Testimonial from "./Testimonial";
-import axios from "axios";
+import { getOffers, getTestimonials } from "../requests";
 
 export default function Home(props) {
   const [offers, setOffers] = useState([]);
   const [test, setTest] = useState([]);
 
   useEffect(() => {
-    getOffers();
-    getTestimonials();
+    getOffers(setOffers);
+    getTestimonials(setTest);
   }, []);
-
-  // async function to retrieve all items with offer === true from DB
-  async function getOffers() {
-    await axios
-      .get("http://localhost:4000/items/offer")
-      .then((response) => {
-        setOffers(Array.from(response.data));
-      })
-      .catch((err) => console.log(err));
-  }
-
-  // async function to retrieve all testimonials
-  async function getTestimonials() {
-    await axios
-      .get("http://localhost:4000/testimonials")
-      .then((response) => setTest(Array.from(response.data)))
-      .catch((err) => console.log(err));
-  }
 
   // takes id of current item in the offers.map
   function testItem(id) {

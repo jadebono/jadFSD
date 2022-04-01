@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useState } from "react";
+import { postState } from "../requests";
 
 export default function Email(props) {
   const [fields, setFields] = useState({
@@ -120,17 +120,6 @@ export default function Email(props) {
     </div>
   );
 
-  // axios function to post the form contents and then sets submission to true to
-  // display the returnHome screen.
-  async function postState() {
-    await axios
-      .post("http://localhost:4000/users/email", {
-        fields,
-      })
-      .then(setSubmission(true))
-      .catch((err) => console.log(err));
-  }
-
   function handleChange(evt) {
     const { name, value } = evt.target;
     setFields((prevFields) => {
@@ -140,7 +129,7 @@ export default function Email(props) {
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    postState();
+    postState(fields, setSubmission);
   }
 
   return <React.Fragment>{submission ? returnHome : form}</React.Fragment>;

@@ -1,4 +1,3 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
@@ -10,7 +9,7 @@ import Register from "./components/Register";
 import Dfield from "./components/Dfield";
 import Shop from "./components/Shop";
 import Cart from "./components/Cart";
-import { session } from "./validate";
+import { getUserCart, postUserCart, session } from "./requests";
 
 export default function App() {
   const [display, setDisplay] = useState("home");
@@ -37,7 +36,7 @@ export default function App() {
       }
     }
     getSession();
-    getUserCart();
+    getUserCart(user.id, setCart);
   }, [user.id]);
 
   useEffect(() => {
@@ -53,48 +52,35 @@ export default function App() {
   }, [cart]);
 
   useEffect(() => {
-    if (user.id !== "") postUserCart();
+    if (user.id !== "") postUserCart(cart, user.id);
   }, [cart]);
 
   useEffect(() => {
-    getUserCart();
+    getUserCart(user.id, setCart);
   }, [user.id]);
-
-  // function to post user's cart to user's collection
-  async function postUserCart() {
-    await axios
-      .post("http://localhost:4000/items/postUserCart", {
-        cart,
-        user: user.id,
-      })
-      .then((response) =>
-        response ? console.log("cart posted") : console.log("cart not posted")
-      )
-      .catch((err) => console.log(err));
-  }
-
-  // function to get user's cart from user's collection
-  async function getUserCart() {
-    await axios
-      .get("http://localhost:4000/items/getUserCart", {
-        params: { user: user.id },
-      })
-      .then((response) => {
-        response.data ? setCart(response.data) : setCart([]);
-      })
-      .catch((err) => console.log(err));
-  }
 
   function goPage(display) {
     setDisplay(display);
   }
 
+  // to provide as prop to <Register/>
   function setUserState(user) {
     //save cookie manually
     document.cookie = `session=${user.token} `;
     // set user data
     setUser((prevUser) => {
       return { id: user.id, username: user.username, email: user.email };
+    });
+  }
+
+  // to provide as prop to <Register/>
+  function signOutUser() {
+    console.log("sign out code received");
+    //save cookie manually
+    document.cookie = `session=""`;
+    // set user data
+    setUser((prevUser) => {
+      return { id: "", username: "", email: "" };
     });
   }
 
@@ -161,7 +147,12 @@ export default function App() {
         ) : display === "email" ? (
           <Email goPage={goPage} />
         ) : display === "signup" ? (
-          <Register goPage={goPage} setUserState={setUserState} user={user} />
+          <Register
+            goPage={goPage}
+            setUserState={setUserState}
+            user={user}
+            signOutUser={signOutUser}
+          />
         ) : display === "dfield" ? (
           <Dfield />
         ) : display === "shop" ? (

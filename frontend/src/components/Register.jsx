@@ -1,11 +1,9 @@
-import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { postRegister, postSignIn } from "../requests";
 import SnackBar from "./SnackBar";
 
 export default function Register(props) {
   let tempUser = props.user.username;
-
-  const [userCart, setUserCart] = useState();
 
   const [myReg, setMyReg] = useState({
     username: "",
@@ -192,17 +190,7 @@ export default function Register(props) {
             Sign out
           </div>
           <div className="flex flex-row my-4 justify-around">
-            <button
-              className="btn-form"
-              onClick={() =>
-                setConfirmed((prevConfirmed) => {
-                  return {
-                    ...prevConfirmed,
-                    register: true,
-                  };
-                })
-              }
-            >
+            <button className="btn-form" onClick={handleSignOut}>
               Sign out
             </button>
           </div>
@@ -231,66 +219,6 @@ export default function Register(props) {
       </div>
     </div>
   );
-
-  async function postRegister() {
-    const { username, email, password } = myReg;
-    await axios
-      .post("http://localhost:4000/users/register", {
-        username,
-        email,
-        password,
-      })
-      .then((response) => {
-        if (response.data) {
-          setSnackBar({
-            state: true,
-            colour: "green",
-            type: "warning",
-            message: "Registration successful, now please sign in.",
-          });
-          resetSnackBar();
-          setConfirmed((prevConfirmed) => {
-            return {
-              ...prevConfirmed,
-              register: true,
-            };
-          });
-        } else {
-          setSnackBar({
-            state: true,
-            colour: "red",
-            type: "warning",
-            message: "Registration unsuccessful! Please try again!",
-          });
-          resetSnackBar();
-        }
-      });
-  }
-
-  async function postSignIn() {
-    await axios
-      .post("http://localhost:4000/users/signin", signIn)
-      .then((response) => {
-        if (response.data !== "Invalid Login!") {
-          props.setUserState(response.data);
-          tempUser = response.data.username;
-          setConfirmed((prevConfirmed) => {
-            return {
-              ...prevConfirmed,
-              signIn: true,
-            };
-          });
-        } else {
-          setSnackBar({
-            state: true,
-            colour: "red",
-            type: "warning",
-            message: "Invalid signin!",
-          });
-          resetSnackBar();
-        }
-      });
-  }
 
   function validatePassword() {
     return myReg.password === myReg.pwdConf ? true : false;
@@ -338,13 +266,29 @@ export default function Register(props) {
           type: "warning",
           message: "Passwords do NOT match!",
         })
-      : postRegister();
+      : postRegister(myReg, setSnackBar, resetSnackBar, setConfirmed);
     resetSnackBar();
   }
 
   function handleSignIn(evt) {
     evt.preventDefault();
-    postSignIn();
+    postSignIn(
+      signIn,
+      props.setUserState,
+      tempUser,
+      setConfirmed,
+      setSnackBar,
+      resetSnackBar
+    );
+  }
+
+  function handleSignOut() {
+    props.signOutUser();
+    setConfirmed({
+      signIn: false,
+      register: false,
+    });
+    props.goPage("home");
   }
 
   return (

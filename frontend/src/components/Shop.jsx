@@ -1,23 +1,15 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
+import { getItems } from "../requests";
 
 export default function Shop(props) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    getItems();
+    getItems(setItems);
   }, []);
 
-  // async function to retrieve all items for shop page
-  async function getItems() {
-    await axios
-      .get("http://localhost:4000/items")
-      .then((response) => setItems(Array.from(response.data)))
-      .catch((err) => console.log(err));
-  }
-
-  !items.length && getItems();
+  !items.length && getItems(setItems);
 
   // takes id of current item in the items.map
   function testItem(id) {
