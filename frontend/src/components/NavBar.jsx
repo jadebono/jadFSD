@@ -17,16 +17,7 @@ export default function NavBar(props) {
           >
             τεknοskεnα
           </div>
-          <div className="nav-btn">Account</div>
-          <div className="nav-btn" onClick={() => props.goPage("form")}>
-            Database Form
-          </div>
-          <div className="nav-btn" onClick={() => props.goPage("dash")}>
-            Dashboard
-          </div>
-          <div className="nav-btn" onClick={() => props.goPage("dfield")}>
-            DField
-          </div>
+
           <div className="nav-btn" onClick={() => props.goPage("shop")}>
             Shop
           </div>

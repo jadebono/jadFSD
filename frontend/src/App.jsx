@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
+import Cart from "./components/Cart";
 import Home from "./components/Home";
-import Form from "./components/Form";
-import Admin from "./components/Dash";
 import Email from "./components/Email";
 import Register from "./components/Register";
-import Dfield from "./components/Dfield";
 import Shop from "./components/Shop";
-import Cart from "./components/Cart";
-import { getUserCart, postUserCart, session } from "./requests";
+import { getUserCart, postUserCart, session, signOutNode } from "./requests";
 
 export default function App() {
   const [display, setDisplay] = useState("home");
@@ -25,7 +22,6 @@ export default function App() {
     async function getSession() {
       if (user.id === "" && session()) {
         let sessUser = await session();
-        console.log("sessuser is: ", sessUser);
         setUser((prevUser) => {
           return {
             id: sessUser.id,
@@ -74,8 +70,8 @@ export default function App() {
   }
 
   // to provide as prop to <Register/>
-  function signOutUser() {
-    console.log("sign out code received");
+  async function signOutUser() {
+    await signOutNode();
     //save cookie manually
     document.cookie = `session=""`;
     // set user data
@@ -140,10 +136,6 @@ export default function App() {
       <div className="my-4">
         {display === "home" ? (
           <Home getItem={getItem} deleteItem={deleteItem} cart={cart} />
-        ) : display === "form" ? (
-          <Form />
-        ) : display === "dash" ? (
-          <Admin />
         ) : display === "email" ? (
           <Email goPage={goPage} />
         ) : display === "signup" ? (
@@ -153,8 +145,6 @@ export default function App() {
             user={user}
             signOutUser={signOutUser}
           />
-        ) : display === "dfield" ? (
-          <Dfield />
         ) : display === "shop" ? (
           <Shop getItem={getItem} deleteItem={deleteItem} cart={cart} />
         ) : display === "cart" && cart.length ? (

@@ -2,16 +2,17 @@
 
 // route for all interactions with users
 
+import dotenv from "dotenv";
 import express from "express";
+import * as fs from "fs";
 import HashString from "../mongoConnect.js";
 import { LoadFromDB, SaveToDB, updateDB } from "../mongoConnect.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-import { response } from "express";
 import { ObjectId } from "mongodb";
-// import { req } from "express/lib/request";
 export const usersRouter = express.Router();
 
+dotenv.config();
 /*
 function to test if username and/or password exist if test is returned as false, the  username or password exist and the registration will be rejected
 */
@@ -28,9 +29,9 @@ async function testUserEmail(obj) {
 retrieves the user id of the new user and uses it to create a log document in the logs collection consisting of the new user's id and the number of his requests
 */
 async function startNewUserLog(username) {
-  LoadFromDB("users", { username: username }).then((response) => {
+  await LoadFromDB("users", { username: username }).then(async (response) => {
     const user = { ...response["0"] };
-    SaveToDB("log", {
+    await SaveToDB("log", {
       userId: user._id,
       requests: 1,
     });
@@ -39,13 +40,13 @@ async function startNewUserLog(username) {
 
 // function to create the session token
 function signSessionToken(id) {
-  console.log(`user.id is ${id}`);
+  fs.writeFileSync("logs.txt", id.toString());
   return jwt.sign(
     {
       data: id,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "4h" }
+    { expiresIn: "48h" }
   );
 }
 
@@ -63,7 +64,7 @@ function validateSessionToken(token) {
 function decryptSessionToken(token) {
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    console.log(`decoded.data = ${decoded.data}`);
+
     return decoded.data;
   } catch (error) {
     return false;
@@ -95,8 +96,7 @@ usersRouter.route("/email").post(async (req, res) => {
       <p>${fields.body}</p>
       </div>`,
     })
-    // !!todo add code to send back to react a message that email was sent successfully
-    .then(console.log("email successfully submitted!"))
+    .then(res.send("email successfully submitted!"))
     .catch((error) => console.log(error));
 });
 
@@ -105,7 +105,6 @@ usersRouter.route("/register").post(async (req, res) => {
   const _username = req.body.username;
   const _email = req.body.email;
   const _password = HashString(req.body.password);
-  let user;
   // check to see whether username and/or email are already in db
   const testUser = await testUserEmail({ username: _username });
   const testEmail = await testUserEmail({ email: _email });
@@ -125,10 +124,10 @@ usersRouter.route("/register").post(async (req, res) => {
 });
 
 //post to signin user
-usersRouter.route("/signin").post((req, res) => {
+usersRouter.route("/signin").post(async (req, res) => {
   const username = req.body.username;
   const password = HashString(req.body.password);
-  LoadFromDB("users", { username: username })
+  await LoadFromDB("users", { username: username })
     .then((response) => {
       const user = { ...response["0"] };
       if (password === user.password) {
@@ -154,14 +153,12 @@ usersRouter.route("/validatesession").post((req, res) => {
 });
 
 // route to sign in a user if session is still active
-usersRouter.route("/sessionSignin").post((req, res) => {
+usersRouter.route("/sessionSignin").post(async (req, res) => {
   let token = req.body.cookie;
-  console.log(`the token I have received from index is: ${token}`);
   let user = decryptSessionToken(token);
-  console.log(`user from Index is: ${user}`);
   // fetch user data
   if (user) {
-    LoadFromDB("users", { _id: { $eq: new ObjectId(user) } })
+    await LoadFromDB("users", { _id: { $eq: new ObjectId(user) } })
       .then((response) => {
         const loggedUser = response.pop();
         res.send({
@@ -175,4 +172,10 @@ usersRouter.route("/sessionSignin").post((req, res) => {
   } else {
     res.send(false);
   }
+});
+
+//route to delete logs.txt to prevent node from updating the signedout user's requests
+usersRouter.route("/signOutNode").post((req, res) => {
+  fs.unlinkSync("logs.txt");
+  res.send(true);
 });

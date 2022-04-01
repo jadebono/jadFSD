@@ -1,4 +1,3 @@
-"use strict";
 import axios from "axios";
 
 // Route requests
@@ -10,9 +9,6 @@ export async function postUserCart(cart, userId) {
       cart,
       user: userId,
     })
-    .then((response) =>
-      response ? console.log("cart posted") : console.log("cart not posted")
-    )
     .catch((err) => console.log(err));
 }
 
@@ -46,18 +42,23 @@ async function reqValidation(token) {
     .post("http://localhost:4000/users/validatesession", {
       cookie: token,
     })
-    .then((r) => console.log(r.data));
+    .catch((err) => console.log(err));
 }
 
 // session validation for <App/>
 export async function session() {
   if (document.cookie && reqValidation(document.cookie.split("=")[1])) {
-    console.log("yes, cookie exists and is valid!");
     let props = await sessionSignin(document.cookie.split("=")[1]);
     return props;
   } else {
     return false;
   }
+}
+
+// async function to let server know that user has signed out to delete the log.txt file
+
+export async function signOutNode() {
+  await axios.post("http://localhost:4000/users/signOutNode", "signout");
 }
 
 // async function to retrieve all items with offer === true from DB for <Home/>
@@ -100,6 +101,7 @@ export async function postRegister(
           type: "warning",
           message: "Registration successful, now please sign in.",
         });
+        console.log("Registration successful!");
         resetSnackBar();
         setConfirmed((prevConfirmed) => {
           return {
@@ -132,6 +134,7 @@ export async function postSignIn(
     .post("http://localhost:4000/users/signin", signIn)
     .then((response) => {
       if (response.data !== "Invalid Login!") {
+        console.log("Sign in successful!");
         setUserState(response.data);
         tempUser = response.data.username;
         setConfirmed((prevConfirmed) => {
@@ -170,6 +173,7 @@ export async function postState(fields, setSubmission) {
       fields,
     })
     .then(setSubmission(true))
+    .then((response) => console.log(response.data))
     .catch((err) => console.log(err));
 }
 

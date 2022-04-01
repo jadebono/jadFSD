@@ -36,7 +36,7 @@ export async function TestConnectMDB() {
 }
 
 // create connection
-export async function ConnectMDB() {
+async function ConnectMDB() {
   await client
     .connect()
     .then(console.log("Connected successfullY to database!"))
@@ -44,7 +44,7 @@ export async function ConnectMDB() {
 }
 
 // close connection
-export async function CloseMDB() {
+async function CloseMDB() {
   await client
     .close()
     .then(console.log("Connection to database closed successfullY!"))
@@ -80,6 +80,18 @@ export async function updateDB(col, filter, data) {
   try {
     await ConnectMDB();
     await db.collection(col).updateOne(filter, { $set: data });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    await CloseMDB();
+  }
+}
+
+// function to increment a value in a document in the logs collection
+export async function incLog(col, filter) {
+  try {
+    await ConnectMDB();
+    await db.collection(col).updateOne(filter, { $inc: { requests: 1 } });
   } catch (error) {
     console.log(error);
   } finally {

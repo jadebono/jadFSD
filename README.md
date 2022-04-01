@@ -12,13 +12,24 @@ Cycle: Q4 2021 - Q1 2022
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### `Dependencies`
+requests are separated from the components and put into the /src/requests.js file
 
+### `dependencies`
+
+1. "@testing-library/jest-dom": "^5.16.2",
+1. "@testing-library/react": "^12.1.3",
+1. "@testing-library/user-event": "^13.5.0",
 1. "axios": "^0.26.0",
 1. "react": "^17.0.2",
 1. "react-dom": "^17.0.2",
 1. "react-scripts": "5.0.0",
 1. "web-vitals": "^2.1.4"
+
+### `devDependencies`
+
+1. "autoprefixer": "^10.4.2",
+1. "postcss": "^8.4.7",
+1. "tailwindcss": "^3.0.23"
 
 ### `<Card/> Properties`
 
@@ -73,12 +84,14 @@ You can configure your Testimonial component by using the following props with s
 
 Port: 4000
 
+1. folder for middleware
+1. folder for routes
+
 **IMPORTANT**  
 .env file in backend folder excluded from git for security
 
-### `Dependencies`
+### `dependencies`
 
-1. "axios": "^0.26.0",
 1. "cookie-parser": "^1.4.6",
 1. "cors": "^2.8.5",
 1. "dotenv": "^16.0.0",
@@ -87,10 +100,18 @@ Port: 4000
 1. "mongodb": "^4.4.0",
 1. "nodemailer": "^6.7.2",
 1. "nodemon": "^2.0.15",
-1. "uuid": "^8.3.2"
 
 ## `External Services`
 
 ### `MongoDB`
+
+Database: fsb
+
+collections:
+
+1. items - shop items
+1. log - documents storing the user by his id in the users collection and the number of requests tha the user makes
+1. testimonials - the data for the testimonials on the <Home/> component
+1. users - the users data and their cart
 
 ### `Mailtrap`
