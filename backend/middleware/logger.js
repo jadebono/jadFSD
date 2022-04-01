@@ -11,10 +11,9 @@ export async function logger(req, res, next) {
   try {
     // if logs.txt exists, a user has been logged in
     let user = fs.readFileSync("logs.txt").toString();
-    // increments +1 requests field in users document in log collection
-    await incLog("log", { userId: new ObjectId(user) })
-      .then(console.log("updated log requests"))
-      .catch((err) => console.log(error));
+    // increments +1 reqs.txt to be written in the logs collection at the end of the
+    //session
+    fs.appendFileSync("reqs.txt", "1");
   } catch (error) {
     // otherwise there is no user logged in
     console.log("no user signed in - not logging request");

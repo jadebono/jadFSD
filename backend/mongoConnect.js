@@ -88,10 +88,12 @@ export async function updateDB(col, filter, data) {
 }
 
 // function to increment a value in a document in the logs collection
-export async function incLog(col, filter) {
+export async function incLog(col, filter, requests) {
   try {
     await ConnectMDB();
-    await db.collection(col).updateOne(filter, { $inc: { requests: 1 } });
+    await db
+      .collection(col)
+      .updateOne(filter, { $inc: { requests: requests } });
   } catch (error) {
     console.log(error);
   } finally {

@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 import express from "express";
 import * as fs from "fs";
 import HashString from "../mongoConnect.js";
-import { LoadFromDB, SaveToDB, updateDB } from "../mongoConnect.js";
+import { incLog, LoadFromDB, SaveToDB } from "../mongoConnect.js";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import { ObjectId } from "mongodb";
@@ -40,6 +40,7 @@ async function startNewUserLog(username) {
 
 // function to create the session token
 function signSessionToken(id) {
+  fs.writeFileSync("reqs.txt", "1");
   fs.writeFileSync("logs.txt", id.toString());
   return jwt.sign(
     {
@@ -174,8 +175,19 @@ usersRouter.route("/sessionSignin").post(async (req, res) => {
   }
 });
 
-//route to delete logs.txt to prevent node from updating the signedout user's requests
-usersRouter.route("/signOutNode").post((req, res) => {
+//route to log number of requests a user has made throughout a session
+// and to delete the logs.txt and reqs.txt files as cleanup
+usersRouter.route("/signOutNode").post(async (req, res) => {
+  let user = fs.readFileSync("logs.txt").toString();
+  // reads the number of requests by the length of the string in reqs.txt
+  let requests = fs
+    .readFileSync("reqs.txt", { encoding: "utf8", flag: "r" })
+    .toString().length;
+  // updates users document in logs collection by the number of requests in reqs.txt
+  await incLog("log", { userId: new ObjectId(user) }, requests)
+    .then(console.log("updated log requests"))
+    .catch((err) => console.log(error));
   fs.unlinkSync("logs.txt");
+  fs.unlinkSync("reqs.txt");
   res.send(true);
 });
