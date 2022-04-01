@@ -88,7 +88,8 @@ Port: 4000
 1. folder for routes
 
 **IMPORTANT**  
-.env file in backend folder excluded from git for security
+1. Most node variables are environment variables stored in the .env file.
+1. .env file in backend folder excluded from git for security
 
 ### `dependencies`
 
