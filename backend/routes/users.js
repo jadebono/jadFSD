@@ -47,7 +47,7 @@ function signSessionToken(id) {
       data: id,
     },
     process.env.SECRET_KEY,
-    { expiresIn: "48h" }
+    { expiresIn: process.env.MAX_AGE }
   );
 }
 
