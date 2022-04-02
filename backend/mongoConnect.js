@@ -20,23 +20,16 @@ const db = client.db("fsb");
 
 // create a test connection
 export async function TestConnectMDB() {
-  // connect client to the server
-  await client.connect();
-
   try {
-    // establish and verify connection
     await client.db("jadebono").command({ ping: 1 });
     console.log(`connected successfully`);
   } catch (error) {
     console.log(error);
-  } finally {
-    // ensure that the client will close after connection/error
-    await client.close();
   }
 }
 
 // create connection
-async function ConnectMDB() {
+export async function ConnectMDB() {
   await client
     .connect()
     .then(console.log("Connected successfullY to database!"))
@@ -54,36 +47,27 @@ async function CloseMDB() {
 // function to add document to collection
 export async function SaveToDB(col, data) {
   try {
-    await ConnectMDB();
     await db.collection(col).insertOne(data);
   } catch (error) {
     console.log(error);
-  } finally {
-    await CloseMDB();
   }
 }
 
 // function to retrieve document
 export async function LoadFromDB(col, item) {
   try {
-    await ConnectMDB();
     return await db.collection(col).find(item).toArray();
   } catch (error) {
     console.log(error);
-    // } finally {
   }
-  await CloseMDB();
 }
 
 // function to update document in collection
 export async function updateDB(col, filter, data) {
   try {
-    await ConnectMDB();
     await db.collection(col).updateOne(filter, { $set: data });
   } catch (error) {
     console.log(error);
-  } finally {
-    await CloseMDB();
   }
 }
 
@@ -96,8 +80,6 @@ export async function incLog(col, filter, requests) {
       .updateOne(filter, { $inc: { requests: requests } });
   } catch (error) {
     console.log(error);
-  } finally {
-    await CloseMDB();
   }
 }
 
@@ -105,3 +87,9 @@ export async function incLog(col, filter, requests) {
 export default function HashString(password) {
   return createHmac("sha256", process.env.HMAC).update(password).digest("hex");
 }
+
+process.on("exit", () => CloseMDB());
+process.on("uncaughtException", (error) => {
+  console.log(error);
+  CloseMDB();
+});

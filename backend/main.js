@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { logger } from "./middleware/logger.js";
+import { ConnectMDB } from "./mongoConnect.js";
 
 // importing routes
 import { itemsRouter } from "./routes/items.js";
@@ -33,6 +34,9 @@ app.use("/testimonials", testimonialsRouter);
 app.get("/", (req, res) => {
   res.send("Connected to TeknoSkena Backend!");
 });
+
+// connect to db at server start
+ConnectMDB();
 
 // listen for connections
 app.listen(process.env.PORT, () => {
