@@ -6,7 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import { logger } from "./middleware/logger.js";
-import { ConnectMDB } from "./mongoConnect.js";
+import { ConnectMDB, CloseMDB } from "./mongoConnect.js";
 
 // importing routes
 import { itemsRouter } from "./routes/items.js";
@@ -37,6 +37,13 @@ app.get("/", (req, res) => {
 
 // connect to db at server start
 ConnectMDB();
+
+// close connection on "exit" and "uncaughtException"
+process.on("exit", () => CloseMDB());
+process.on("uncaughtException", (error) => {
+  console.log(error);
+  CloseMDB();
+});
 
 // listen for connections
 app.listen(process.env.PORT, () => {

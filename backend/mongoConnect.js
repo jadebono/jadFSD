@@ -37,7 +37,7 @@ export async function ConnectMDB() {
 }
 
 // close connection
-async function CloseMDB() {
+export async function CloseMDB() {
   await client
     .close()
     .then(console.log("Connection to database closed successfullY!"))
