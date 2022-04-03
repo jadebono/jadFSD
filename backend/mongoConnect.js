@@ -87,9 +87,3 @@ export async function incLog(col, filter, requests) {
 export default function HashString(password) {
   return createHmac("sha256", process.env.HMAC).update(password).digest("hex");
 }
-
-process.on("exit", () => CloseMDB());
-process.on("uncaughtException", (error) => {
-  console.log(error);
-  CloseMDB();
-});

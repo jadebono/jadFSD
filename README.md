@@ -124,7 +124,6 @@ The author wanted to avoid writing to the db every time a request was made. The 
 
 ### `dependencies`
 
-1. "cookie-parser": "^1.4.6",
 1. "cors": "^2.8.5",
 1. "dotenv": "^16.0.0",
 1. "express": "^4.17.3",
