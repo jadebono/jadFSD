@@ -48,8 +48,8 @@ export default function App() {
   }, [cart]);
 
   useEffect(() => {
-    if (user.id !== "") postUserCart(cart, user.id);
-  }, [cart]);
+    if (user.id !== "" && cart.length !== 0) postUserCart(cart, user.id);
+  }, [cart, user.id]);
 
   useEffect(() => {
     getUserCart(user.id, setCart);

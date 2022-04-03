@@ -94,7 +94,7 @@ Port: 4000
 
 ### `Cookies`
 
-Cookie-parser did not work with jsonwebtoken. The solution to the problem is as follows:
+Cookie-parser did not work very well with jsonwebtoken. The solution to the problem is as follows:
 
 1. Create token on server by combining the unique \_id in the user's document in the users collection in the db;
 1. The token is then sent to the frontend;
@@ -124,6 +124,7 @@ The author wanted to avoid writing to the db every time a request was made. The 
 
 ### `dependencies`
 
+1. "cookie-parser": "^1.4.6",
 1. "cors": "^2.8.5",
 1. "dotenv": "^16.0.0",
 1. "express": "^4.17.3",
