@@ -177,17 +177,34 @@ usersRouter.route("/sessionSignin").post(async (req, res) => {
 
 //route to log number of requests a user has made throughout a session
 // and to delete the logs.txt and reqs.txt files as cleanup
-usersRouter.route("/signOutNode").post(async (req, res) => {
-  let user = fs.readFileSync("logs.txt").toString();
-  // reads the number of requests by the length of the string in reqs.txt
-  let requests = fs
-    .readFileSync("reqs.txt", { encoding: "utf8", flag: "r" })
-    .toString().length;
-  // updates users document in logs collection by the number of requests in reqs.txt
-  await incLog("log", { userId: new ObjectId(user) }, requests)
-    .then(console.log("updated log requests"))
-    .catch((err) => console.log(error));
-  fs.unlinkSync("logs.txt");
-  fs.unlinkSync("reqs.txt");
-  res.send(true);
+usersRouter.route("/signOutNode").get(async (req, res) => {
+  try {
+    // if both logs.txt and reqs.txt are on the server and
+    // haven't been deleted by accident or mistake
+    let user = fs.readFileSync("logs.txt").toString();
+    // reads the number of requests by the length of the string in reqs.txt
+    let requests = fs
+      .readFileSync("reqs.txt", { encoding: "utf8", flag: "r" })
+      .toString().length;
+    // updates users document in logs collection by the number of requests in reqs.txt
+    await incLog("log", { userId: new ObjectId(user) }, requests)
+      .then(console.log("updated log requests"))
+      .catch((err) => console.log(error));
+  } catch (error) {
+    // if either logs.txt and/or reqs.txt has been deleted by accident/mistake
+    console.log(
+      "Either logs.txt or reqs.txt or both are missing. Request data cannot be calculated and therefore will not belogged!"
+    );
+  }
+  await fs.unlink("logs.txt", (err) => {
+    err
+      ? console.log("logs.txt does not exist!")
+      : console.log("deleted logs.txt");
+  });
+  await fs.unlink("reqs.txt", (err) => {
+    err
+      ? console.log("reqs.txt does not exist!")
+      : console.log("deleted reqs.txt");
+  });
+  res.send("signing out user");
 });

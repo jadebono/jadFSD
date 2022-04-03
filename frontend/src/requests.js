@@ -2,63 +2,16 @@ import axios from "axios";
 
 // Route requests
 
-// function to post user's cart to user's collection for <App/>
-export async function postUserCart(cart, userId) {
+// Requests to the /items routes
+
+// async function to retrieve all items for <Cart/>
+export async function getCartItems(cart, setCartItems) {
   await axios
-    .post("http://localhost:4000/items/postUserCart", {
-      cart,
-      user: userId,
+    .get("http://localhost:4000/items/cartItems", {
+      params: { cart: cart },
     })
+    .then((response) => setCartItems(Array.from(response.data)))
     .catch((err) => console.log(err));
-}
-
-// function to get user's cart from user's collection for <App/>
-export async function getUserCart(userId, setCart) {
-  await axios
-    .get("http://localhost:4000/items/getUserCart", {
-      params: { user: userId },
-    })
-    .then((response) => {
-      response.data ? setCart(response.data) : setCart([]);
-    })
-    .catch((err) => console.log(err));
-}
-
-// signin if valid cookie is found
-async function sessionSignin(token) {
-  let props = {};
-  await axios
-    .post("http://localhost:4000/users/sessionSignin", { cookie: token })
-    .then((response) => {
-      const { id, username, email, cart } = { ...response.data };
-      props = { id: id, username: username, email: email, cart: cart };
-    });
-  return props;
-}
-
-// validate session
-async function reqValidation(token) {
-  await axios
-    .post("http://localhost:4000/users/validatesession", {
-      cookie: token,
-    })
-    .catch((err) => console.log(err));
-}
-
-// session validation for <App/>
-export async function session() {
-  if (document.cookie && reqValidation(document.cookie.split("=")[1])) {
-    let props = await sessionSignin(document.cookie.split("=")[1]);
-    return props;
-  } else {
-    return false;
-  }
-}
-
-// async function to let server know that user has signed out to delete the log.txt file
-
-export async function signOutNode() {
-  await axios.post("http://localhost:4000/users/signOutNode", "signout");
 }
 
 // async function to retrieve all items with offer === true from DB for <Home/>
@@ -71,11 +24,74 @@ export async function getOffers(setOffers) {
     .catch((err) => console.log(err));
 }
 
-// async function to retrieve all testimonials for <Home/>
-export async function getTestimonials(setTest) {
+// async function to retrieve all items for <Shop/>
+export async function getItems(setItems) {
   await axios
-    .get("http://localhost:4000/testimonials")
-    .then((response) => setTest(Array.from(response.data)))
+    .get("http://localhost:4000/items")
+    .then((response) => setItems(Array.from(response.data)))
+    .catch((err) => console.log(err));
+}
+
+// async function to post user's cart to user's collection for <App/>
+export async function postUserCart(cart, userId) {
+  await axios
+    .post("http://localhost:4000/items/postUserCart", {
+      cart,
+      user: userId,
+    })
+    .catch((err) => console.log(err));
+}
+
+// async function to get user's cart from user's collection for <App/>
+export async function getUserCart(userId, setCart) {
+  await axios
+    .get("http://localhost:4000/items/getUserCart", {
+      params: { user: userId },
+    })
+    .then((response) => {
+      response.data ? setCart(response.data) : setCart([]);
+    })
+    .catch((err) => console.log(err));
+}
+
+// Requests to the /users routes
+
+// async funtion to signin if valid cookie is found
+async function sessionSignin(token) {
+  let props = {};
+  await axios
+    .post("http://localhost:4000/users/sessionSignin", { cookie: token })
+    .then((response) => {
+      const { id, username, email, cart } = { ...response.data };
+      props = { id: id, username: username, email: email, cart: cart };
+    });
+  return props;
+}
+
+// async function to validate session
+async function reqValidation(token) {
+  await axios
+    .post("http://localhost:4000/users/validatesession", {
+      cookie: token,
+    })
+    .catch((err) => console.log(err));
+}
+
+// async session validation for <App/>
+export async function session() {
+  if (document.cookie && reqValidation(document.cookie.split("=")[1])) {
+    let props = await sessionSignin(document.cookie.split("=")[1]);
+    return props;
+  } else {
+    return false;
+  }
+}
+
+// async function to let server know that user has signed out to delete the log.txt file
+export async function signOutNode() {
+  await axios
+    .get("http://localhost:4000/users/signOutNode")
+    .then((response) => console.log(response.data))
     .catch((err) => console.log(err));
 }
 
@@ -155,17 +171,7 @@ export async function postSignIn(
     });
 }
 
-// async function to retrieve all items for <Cart/>
-export async function getCartItems(cart, setCartItems) {
-  await axios
-    .get("http://localhost:4000/items/cartItems", {
-      params: { cart: cart },
-    })
-    .then((response) => setCartItems(Array.from(response.data)))
-    .catch((err) => console.log(err));
-}
-
-// Function to post the email form contents and then sets submission to true to
+// async function to post the email form contents and then sets submission to true to
 // display the returnHome screen for <Email/>.
 export async function postState(fields, setSubmission) {
   await axios
@@ -177,10 +183,12 @@ export async function postState(fields, setSubmission) {
     .catch((err) => console.log(err));
 }
 
-// async function to retrieve all items for <Shop/>
-export async function getItems(setItems) {
+// Requests to the /testimonials routes
+
+// async function to retrieve all testimonials for <Home/>
+export async function getTestimonials(setTest) {
   await axios
-    .get("http://localhost:4000/items")
-    .then((response) => setItems(Array.from(response.data)))
+    .get("http://localhost:4000/testimonials")
+    .then((response) => setTest(Array.from(response.data)))
     .catch((err) => console.log(err));
 }

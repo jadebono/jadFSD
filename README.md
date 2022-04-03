@@ -87,9 +87,40 @@ Port: 4000
 1. folder for middleware
 1. folder for routes
 
-**IMPORTANT**  
+**IMPORTANT**
+
 1. Most node variables are environment variables stored in the .env file.
 1. .env file in backend folder excluded from git for security
+
+### `Cookies`
+
+Cookie-parser did not work with jsonwebtoken. The solution to the problem is as follows:
+
+1. Create token on server by combining the unique \_id in the user's document in the users collection in the db;
+1. The token is then sent to the frontend;
+1. the cookie is set with the user's token;
+1. Upon signout, the cookie deleted by setting the session to "" and the max_age to 0
+
+```js
+// setting the session cookie
+document.cookie = `session=${user.token} `;
+
+//deleting the session cookie
+document.cookie = `session=""; max-age=0`;
+```
+
+### `Logging requests`
+
+The author wanted to avoid writing to the db every time a request was made. The decision was taken to save the user's id and record the number of his requests in another text file. The number of requests would then be logged in the log collection in a document containing 3 fields: (1) \_id of document, (2) User's \_id from his document in the users collection (3) the number of requests he made. The process is as follows:
+
+1. When the user's token was created, two new txt files were also created simultaneously on the server;
+1. The first file is logs.txt containing the user's db \_id;
+1. the second is reqs.txt with a count of 1;
+1. Each time a request is made by a user who is signed a middleware logger appends 1 to reqs.txt;
+1. Upon sign out, logs.txt is read to retrieve the user's \_id;
+1. reqs.txt is read to retrieve the number of requests the user has made;
+1. Then a db update operation is carried out to add the user's session requests to his total in his document in the log collection;
+1. Then both logs.txt and reqs.txt are deleted;
 
 ### `dependencies`
 

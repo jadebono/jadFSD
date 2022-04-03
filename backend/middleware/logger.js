@@ -4,8 +4,6 @@
 // user document is in the log collection
 
 import * as fs from "fs";
-import { incLog } from "../mongoConnect.js";
-import { ObjectId } from "mongodb";
 
 export async function logger(req, res, next) {
   try {
@@ -15,8 +13,7 @@ export async function logger(req, res, next) {
     //session
     fs.appendFileSync("reqs.txt", "1");
   } catch (error) {
-    // otherwise there is no user logged in
-    console.log("no user signed in - not logging request");
+    // otherwise there is no user logged in so do nothing
   }
   next();
 }

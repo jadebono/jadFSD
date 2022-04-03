@@ -71,13 +71,17 @@ export default function App() {
 
   // to provide as prop to <Register/>
   async function signOutUser() {
-    await signOutNode();
-    //save cookie manually
-    document.cookie = `session=""`;
-    // set user data
-    setUser((prevUser) => {
-      return { id: "", username: "", email: "" };
-    });
+    if (document.cookie) {
+      await signOutNode();
+      //deleting the cookie manually
+      document.cookie = `session=""; max-age=0`;
+      // set user data
+      setUser((prevUser) => {
+        return { id: "", username: "", email: "" };
+      });
+    } else {
+      console.log("No session is currently open, you are not signed in!");
+    }
   }
 
   function deleteItem(item) {
