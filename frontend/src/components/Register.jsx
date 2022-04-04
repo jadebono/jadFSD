@@ -207,7 +207,7 @@ export default function Register(props) {
           role="alert"
         >
           <p className="font-bold">
-            Hi, {tempUser}! You have signed in successfully!`
+            Hi, {props.user.username}! You have signed in successfully!`
           </p>
         </div>
         <button
@@ -266,7 +266,13 @@ export default function Register(props) {
           type: "warning",
           message: "Passwords do NOT match!",
         })
-      : postRegister(myReg, setSnackBar, resetSnackBar, setConfirmed);
+      : postRegister(
+          myReg,
+          setSnackBar,
+          resetSnackBar,
+          setConfirmed,
+          props.userId
+        );
     resetSnackBar();
   }
 
@@ -275,10 +281,10 @@ export default function Register(props) {
     postSignIn(
       signIn,
       props.setUserState,
-      tempUser,
       setConfirmed,
       setSnackBar,
-      resetSnackBar
+      resetSnackBar,
+      props.userId
     );
   }
 

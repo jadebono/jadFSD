@@ -14,6 +14,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 requests are separated from the components and put into the /src/requests.js file
 
+**important**
+The development machine ran the frontend on http://localhost:3001 as it had another app running on port 3000. If frontend is run on any other port, it will not load the images hosted in the /public/assets folder.
+
 ### `dependencies`
 
 1. "@testing-library/jest-dom": "^5.16.2",
@@ -111,16 +114,15 @@ document.cookie = `session=""; max-age=0`;
 
 ### `Logging requests`
 
-The author wanted to avoid writing to the db every time a request was made. The decision was taken to save the user's id and record the number of his requests in another text file. The number of requests would then be logged in the log collection in a document containing 3 fields: (1) \_id of document, (2) User's \_id from his document in the users collection (3) the number of requests he made. The process is as follows:
+The author wanted to avoid writing to the db every time a request was made simply to log the request. The decision was taken to save the user's id and record the number of his requests in a text file to be temporarily saved in the root of the backend folder. The number of requests would then be logged in the log collection in a document containing 3 fields: (1) \_id of document, (2) User's \_id from his document in the users collection (3) the number of requests he made. The process is as follows:
 
-1. When the user's token was created, two new txt files were also created simultaneously on the server;
-1. The first file is logs.txt containing the user's db \_id;
-1. the second is reqs.txt with a count of 1;
-1. Each time a request is made by a user who is signed a middleware logger appends 1 to reqs.txt;
-1. Upon sign out, logs.txt is read to retrieve the user's \_id;
-1. reqs.txt is read to retrieve the number of requests the user has made;
+1. When the user's token is created, a new text file is created on the server
+1. the file name is unique and combines with the user's id in the user's document in the users collection in the following format: reqs_userId.txt. The unique filename enables the server to store such a record for more than one user should more than one useer be logged on simultaneously.
+1. The file is initially created with a count of 1;
+1. Each time a request is made by a signed-in user, a middleware logger appends 1 to reqs_userId.txt;
+1. Upon sign out, reqs_userId.txt is read to retrieve the number of requests the user has made;
 1. Then a db update operation is carried out to add the user's session requests to his total in his document in the log collection;
-1. Then both logs.txt and reqs.txt are deleted;
+1. Finally reqs_userId.txt is deleted at sign out as cleanup.
 
 ### `dependencies`
 

@@ -5,15 +5,22 @@
 
 import * as fs from "fs";
 
+function logReq(userId) {
+  fs.appendFileSync(`reqs_${userId}.txt`, "1");
+}
+
 export async function logger(req, res, next) {
-  try {
-    // if logs.txt exists, a user has been logged in
-    let user = fs.readFileSync("logs.txt").toString();
-    // increments +1 reqs.txt to be written in the logs collection at the end of the
-    //session
-    fs.appendFileSync("reqs.txt", "1");
-  } catch (error) {
-    // otherwise there is no user logged in so do nothing
+  let userId;
+  // for get requests
+  if (typeof req.query.user === "string" && req.query.user !== "") {
+    userId = req.query.user;
+    logReq(userId);
+    // for post requests
+  } else if (typeof req.body.user === "string" && req.body.user !== "") {
+    userId = req.body.user;
+    logReq(userId);
+  } else {
+    console.log("no user id with this request");
   }
   next();
 }

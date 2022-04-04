@@ -13,9 +13,9 @@ export default function Cart(props) {
   const vatRate = 18;
 
   useEffect(() => {
-    getCartItems(props.cart, setCartItems);
+    getCartItems(props.cart, props.userId, setCartItems);
     calcTotal(props.cart);
-  }, [props.cart]);
+  }, [props.cart, props.userId]);
 
   function calcTotal(cart) {
     if (cart.length) {

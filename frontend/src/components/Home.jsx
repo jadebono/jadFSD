@@ -8,9 +8,9 @@ export default function Home(props) {
   const [test, setTest] = useState([]);
 
   useEffect(() => {
-    getOffers(setOffers);
-    getTestimonials(setTest);
-  }, []);
+    getOffers(setOffers, props.userId);
+    getTestimonials(setTest, props.userId);
+  }, [props.userId]);
 
   // takes id of current item in the offers.map
   function testItem(id) {

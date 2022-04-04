@@ -40,8 +40,8 @@ async function startNewUserLog(username) {
 
 // function to create the session token
 function signSessionToken(id) {
-  fs.writeFileSync("reqs.txt", "1");
-  fs.writeFileSync("logs.txt", id.toString());
+  const userId = id.toString();
+  userId && fs.writeFileSync(`reqs_${userId}.txt`, "1");
   return jwt.sign(
     {
       data: id,
@@ -74,7 +74,9 @@ function decryptSessionToken(token) {
 
 // post from email form to email account (mailtrap.io)
 usersRouter.route("/email").post(async (req, res) => {
-  let fields = req.body.fields;
+  let email = req.body.email;
+  let subject = req.body.subject;
+  let body = req.body.body;
 
   //create transport for nodemailer
   const transport = nodemailer.createTransport({
@@ -89,12 +91,12 @@ usersRouter.route("/email").post(async (req, res) => {
   // run transport
   await transport
     .sendMail({
-      from: fields.email,
+      from: email,
       to: "joe@test.com",
-      subject: fields.subject,
+      subject: subject,
       html: `<div className="">
       <h2>Here is your email!</h2>
-      <p>${fields.body}</p>
+      <p>${body}</p>
       </div>`,
     })
     .then(res.send("email successfully submitted!"))
@@ -176,35 +178,30 @@ usersRouter.route("/sessionSignin").post(async (req, res) => {
 });
 
 //route to log number of requests a user has made throughout a session
-// and to delete the logs.txt and reqs.txt files as cleanup
+// and to delete the reqs_${userId}.txt file as cleanup
 usersRouter.route("/signOutNode").get(async (req, res) => {
+  let userId = req.query.user;
+  // if reqs_${userId}.txt are on the server and haven't been deleted by accident or // mistake
   try {
-    // if both logs.txt and reqs.txt are on the server and
-    // haven't been deleted by accident or mistake
-    let user = fs.readFileSync("logs.txt").toString();
-    // reads the number of requests by the length of the string in reqs.txt
+    // reads the number of requests by the length of the string in reqs_${userId}.txt
     let requests = fs
-      .readFileSync("reqs.txt", { encoding: "utf8", flag: "r" })
+      .readFileSync(`reqs_${userId}.txt`, { encoding: "utf8", flag: "r" })
       .toString().length;
     // updates users document in logs collection by the number of requests in reqs.txt
-    await incLog("log", { userId: new ObjectId(user) }, requests)
+    await incLog("log", { userId: new ObjectId(userId) }, requests)
       .then(console.log("updated log requests"))
-      .catch((err) => console.log(error));
+      .catch((err) => console.log(err));
+    await fs.unlink(`reqs_${userId}.txt`, (err) => {
+      err
+        ? console.log(`reqs_${userId}.txt does not exist!`)
+        : console.log(`deleted reqs_${userId}.txt`);
+    });
   } catch (error) {
     // if either logs.txt and/or reqs.txt has been deleted by accident/mistake
     console.log(
-      "Either logs.txt or reqs.txt or both are missing. Request data cannot be calculated and therefore will not belogged!"
+      `reqs_${userId}.txt missing. Request data cannot be calculated and therefore will not be logged!`
     );
   }
-  await fs.unlink("logs.txt", (err) => {
-    err
-      ? console.log("logs.txt does not exist!")
-      : console.log("deleted logs.txt");
-  });
-  await fs.unlink("reqs.txt", (err) => {
-    err
-      ? console.log("reqs.txt does not exist!")
-      : console.log("deleted reqs.txt");
-  });
+
   res.send("signing out user");
 });

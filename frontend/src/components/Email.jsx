@@ -129,7 +129,7 @@ export default function Email(props) {
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    postState(fields, setSubmission);
+    postState(fields, setSubmission, props.userId);
   }
 
   return <React.Fragment>{submission ? returnHome : form}</React.Fragment>;

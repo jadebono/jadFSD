@@ -72,7 +72,7 @@ export default function App() {
   // to provide as prop to <Register/>
   async function signOutUser() {
     if (document.cookie) {
-      await signOutNode();
+      await signOutNode(user.id);
       //deleting the cookie manually
       document.cookie = `session=""; max-age=0`;
       // set user data
@@ -139,20 +139,32 @@ export default function App() {
       </div>
       <div className="my-4">
         {display === "home" ? (
-          <Home getItem={getItem} deleteItem={deleteItem} cart={cart} />
+          <Home
+            userId={user.id}
+            getItem={getItem}
+            deleteItem={deleteItem}
+            cart={cart}
+          />
         ) : display === "email" ? (
-          <Email goPage={goPage} />
+          <Email userId={user.id} goPage={goPage} />
         ) : display === "signup" ? (
           <Register
+            userId={user.id}
             goPage={goPage}
             setUserState={setUserState}
             user={user}
             signOutUser={signOutUser}
           />
         ) : display === "shop" ? (
-          <Shop getItem={getItem} deleteItem={deleteItem} cart={cart} />
+          <Shop
+            userId={user.id}
+            getItem={getItem}
+            deleteItem={deleteItem}
+            cart={cart}
+          />
         ) : display === "cart" && cart.length ? (
           <Cart
+            userId={user.id}
             getItem={getItem}
             cart={cart}
             deleteItem={deleteItem}

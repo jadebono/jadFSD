@@ -5,29 +5,31 @@ import axios from "axios";
 // Requests to the /items routes
 
 // async function to retrieve all items for <Cart/>
-export async function getCartItems(cart, setCartItems) {
+export async function getCartItems(cart, userId, setCartItems) {
   await axios
     .get("http://localhost:4000/items/cartItems", {
-      params: { cart: cart },
+      params: { cart: cart, user: userId },
     })
     .then((response) => setCartItems(Array.from(response.data)))
     .catch((err) => console.log(err));
 }
 
 // async function to retrieve all items with offer === true from DB for <Home/>
-export async function getOffers(setOffers) {
+export async function getOffers(setOffers, userId) {
   await axios
-    .get("http://localhost:4000/items/offer")
-    .then((response) => {
-      setOffers(Array.from(response.data));
+    .get("http://localhost:4000/items/offer", {
+      params: { user: userId },
     })
+    .then((response) => setOffers(Array.from(response.data)))
     .catch((err) => console.log(err));
 }
 
 // async function to retrieve all items for <Shop/>
-export async function getItems(setItems) {
+export async function getItems(userId, setItems) {
   await axios
-    .get("http://localhost:4000/items")
+    .get("http://localhost:4000/items", {
+      params: { user: userId },
+    })
     .then((response) => setItems(Array.from(response.data)))
     .catch((err) => console.log(err));
 }
@@ -88,9 +90,11 @@ export async function session() {
 }
 
 // async function to let server know that user has signed out to delete the log.txt file
-export async function signOutNode() {
+export async function signOutNode(userId) {
   await axios
-    .get("http://localhost:4000/users/signOutNode")
+    .get("http://localhost:4000/users/signOutNode", {
+      params: { user: userId },
+    })
     .then((response) => console.log(response.data))
     .catch((err) => console.log(err));
 }
@@ -100,7 +104,8 @@ export async function postRegister(
   myReg,
   setSnackBar,
   resetSnackBar,
-  setConfirmed
+  setConfirmed,
+  userId
 ) {
   const { username, email, password } = myReg;
   await axios
@@ -108,6 +113,7 @@ export async function postRegister(
       username,
       email,
       password,
+      user: userId,
     })
     .then((response) => {
       if (response.data) {
@@ -141,18 +147,17 @@ export async function postRegister(
 export async function postSignIn(
   signIn,
   setUserState,
-  tempUser,
   setConfirmed,
   setSnackBar,
-  resetSnackBar
+  resetSnackBar,
+  userId
 ) {
   await axios
-    .post("http://localhost:4000/users/signin", signIn)
+    .post("http://localhost:4000/users/signin", { ...signIn, user: userId })
     .then((response) => {
       if (response.data !== "Invalid Login!") {
         console.log("Sign in successful!");
         setUserState(response.data);
-        tempUser = response.data.username;
         setConfirmed((prevConfirmed) => {
           return {
             ...prevConfirmed,
@@ -173,10 +178,11 @@ export async function postSignIn(
 
 // async function to post the email form contents and then sets submission to true to
 // display the returnHome screen for <Email/>.
-export async function postState(fields, setSubmission) {
+export async function postState(fields, setSubmission, userId) {
   await axios
     .post("http://localhost:4000/users/email", {
-      fields,
+      ...fields,
+      user: userId,
     })
     .then(setSubmission(true))
     .then((response) => console.log(response.data))
@@ -186,9 +192,9 @@ export async function postState(fields, setSubmission) {
 // Requests to the /testimonials routes
 
 // async function to retrieve all testimonials for <Home/>
-export async function getTestimonials(setTest) {
+export async function getTestimonials(setTest, userId) {
   await axios
-    .get("http://localhost:4000/testimonials")
+    .get("http://localhost:4000/testimonials", { params: { user: userId } })
     .then((response) => setTest(Array.from(response.data)))
     .catch((err) => console.log(err));
 }

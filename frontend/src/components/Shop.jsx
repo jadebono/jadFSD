@@ -6,10 +6,10 @@ export default function Shop(props) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    getItems(setItems);
-  }, []);
+    getItems(props.userId, setItems);
+  }, [props.userId]);
 
-  !items.length && getItems(setItems);
+  !items.length && getItems(props.userId, setItems);
 
   // takes id of current item in the items.map
   function testItem(id) {
