@@ -5,7 +5,7 @@
 **Institution**: Malta College of Arts, Sciences and Technology (MCAST)  
 **Course:** [MCAST Fullstack Development Bootcamp](https://iict.mcast.edu.mt/full-stack-development-bootcamp/)
 **Cycle:** Q4 2021 - Q1 2022
-**Time Devoted to Assignment:** 25 February - 3 April
+**Time Devoted to Assignment:** 25 February - 1 April
 
 ---
 
